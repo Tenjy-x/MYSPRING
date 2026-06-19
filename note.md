@@ -12,5 +12,36 @@
 TEST
     - Taper URL exemple ("hahah")
         - Mipoitra anleh ("hahah) eo amin Navigateur
+Creer annotation
+ - class
+ - Methode
+ - Attribut
+ variable azo apetraka anaty annotation
+    nom , atttribut , Aiza no possible
+    Cree class
+-------------------------------------------------------------------------------------
+Sprint
+- Creer Controller dans Myspring (mg.itu...)
+
+- Bout de code soit
+-> executer au demarrage l'application (Utiliser Listener)
+-> Premier appel du frontServlet (appel method init)
+    - Mila fantatra ny Controller Rehetra
+    - asina attribut (List) chaine de charactere
+        - Parcourir ny class rehetra , Test Misy annotation ve sa tsy misy , 
+        - Raha misy de ajoutena anaty list
+        - Afficher List
+    Omena list package
+
+    asina anarana variable anate web xml
+        valeur package misy anleh application de test
+    
+-> Creer class utilitaire anaty framework
+    method 
+    - omena ny annotation verifiena
+    - Package
+    - 
+Test : creation TestController
+    - annotena amin Controller
 
 
