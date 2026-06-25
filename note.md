@@ -50,4 +50,9 @@ Mandray (/emp/list)
 Misy variable miova ao anaty front Servlet
 UrlMapping
 
+- UrlMethod (url,String method [get ou post])
+
+- Invoke method
+
+
 
