@@ -44,4 +44,15 @@ Sprint
 Test : creation TestController
     - annotena amin Controller
 
+Annotation method fa mila variable
+Mandray (/emp/list)
+/emp/list dia ao amin empController methode list
+Misy variable miova ao anaty front Servlet
+UrlMapping
+
+- UrlMethod (url,String method [get ou post])
+
+- Invoke method
+
+
 

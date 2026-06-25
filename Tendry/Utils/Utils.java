@@ -2,13 +2,16 @@ package Tendry.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.net.*;
 import java.text.Annotation;
+
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import Tendry.Annotation.AnnotationController;
+import Tendry.Annotation.*;
+import Tendry.Exception.*;
 import Tendry.Utils.*;
 
 public class Utils {
@@ -57,7 +60,7 @@ public class Utils {
             while (entrees.hasMoreElements()) {
                 JarEntry entree = entrees.nextElement();
                 String nomEntree = entree.getName();
-
+                
                 if (nomEntree.startsWith(cheminPackage) && nomEntree.endsWith(".class") && !entree.isDirectory()) {
                     String nomClasse = nomEntree.substring(0, nomEntree.length() - 6).replace('/', '.');
                     // Utilisation du ClassLoader pour charger la classe du JAR
@@ -67,13 +70,90 @@ public class Utils {
         }
     }
 
-    public static List<String> getAnnotationClasses(List<Class<?>> classes , Class<? extends AnnotationController> a ){
-        List<String> ListClasses = new ArrayList<>();
+    public static List<Class<?>> getAnnotationClasses(List<Class<?>> classes , Class<? extends AnnotationController> a ){
+        List<Class<?>> ListClasses = new ArrayList<>();
         for (Class<?> clazz : classes) {
             if(clazz.isAnnotationPresent(a)){
-                ListClasses.add(clazz.getSimpleName());
+                ListClasses.add(clazz);
             }
         }
         return ListClasses;
     }
+
+    // public static  Map<String , Mapping> getAllFunctions(Class clazz) {
+    //     Map<String , Mapping> ret = new HashMap<>();
+    //     Method[] m = clazz.getDeclaredMethods();
+    //     for(Method function : m) {
+    //         UrlMapping ann = function.getAnnotation(UrlMapping.class);
+    //         if(ann!=null) {
+    //             Mapping map = new Mapping();
+    //             map.setController(clazz.getSimpleName());
+    //             map.setMethod(function.getName());
+    //             ret.put(ann.path() , map);
+    //         }
+    //     }
+    //     return ret ;
+    // }
+
+    public static Map<String, Mapping> UrlMapping1(String URL , List<Class<?>> classes , Class<? extends UrlMapping> a) throws URLException{
+        Map<String, Mapping> matched = new HashMap<>();
+        Map<String , Mapping> all = new HashMap<>();
+        for(Class<?> clazz : classes) {
+            int count = 0;
+            Method[] methods = clazz.getDeclaredMethods();
+            for(Method function : methods) {
+                UrlMapping ann = function.getAnnotation(UrlMapping.class);
+                if(ann != null){
+                    String path = ann.path();
+                    Mapping map = new Mapping();
+                    map.setMethod(function.getName());
+                    map.setController(clazz.getSimpleName());
+                    all.put(path , map);
+                    if(path.equals(URL)) {
+                        matched.put(path , map);
+                        count++;
+                    }
+                }
+            }
+            if (count > 1) {
+                throw new URLException("Plusieurs fonctions ont cette URL");
+            }
+        }
+        if (!matched.isEmpty()) {
+            return matched;
+        }
+        return all;
+    }
+    public static Map<UrlMethod, Mapping> UrlMapping(String URL , List<Class<?>> classes , Class<? extends UrlMapping> a) throws URLException{
+    Map<UrlMethod, Mapping> matched = new HashMap<>();
+    Map<UrlMethod , Mapping> all = new HashMap<>();
+    for(Class<?> clazz : classes) {
+        int count = 0;
+        Method[] methods = clazz.getDeclaredMethods();
+        for(Method function : methods) {
+            UrlMapping ann = function.getAnnotation(UrlMapping.class);
+            if(ann != null){
+                UrlMethod urlMethod = new UrlMethod();
+                urlMethod.setUrl(ann.path());
+                urlMethod.setMethod(ann.method());
+                Mapping map = new Mapping();
+                map.setMethod(function.getName());
+                map.setController(clazz.getSimpleName());
+                all.put(urlMethod , map);
+                if((urlMethod.getUrl()).equals(URL)) {
+                    matched.put(urlMethod , map);
+                    count++;
+                }
+            }
+        }
+        if (count > 1) {
+            throw new URLException("Plusieurs fonctions ont cette URL");
+        }
+    }
+    if (!matched.isEmpty()) {
+        return matched;
+    }
+    return all;
+}
+
 }
