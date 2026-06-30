@@ -1,18 +1,19 @@
 package Tendry.Utils;
-
+import java.lang.reflect.Method;
 public class Mapping {
-    String Controller;
-    String Method;
-    public String getController() {
+    private Class<?> Controller;
+    private Method Method;
+    public Class<?> getController() {
         return Controller;
     }
-    public void setController(String controller) {
+    public void setController(Class<?> controller) {
         Controller = controller;
     }
-    public String getMethod() {
+    public Method getMethod() {
         return Method;
     }
-    public void setMethod(String method) {
+    public void setMethod(Method method) {
         Method = method;
     }
+    
 }

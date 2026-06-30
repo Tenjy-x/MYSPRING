@@ -54,12 +54,12 @@ public class FrontControllerServlet extends HttpServlet{
                 out.println("</div>");
                 out.println("<div class = 'Method'>");
                 for(Map.Entry<UrlMethod , Mapping> entry : m2.entrySet() ) {
-                    out.println("method :" + entry.getKey().getMethod()+ " " + entry.getKey().getUrl()+ " : " + entry.getValue().getController() + "->" + entry.getValue().getMethod());
+                    out.println("method :" + entry.getKey().getMethod()+ " " + entry.getKey().getUrl()+ " : " + entry.getValue().getController().getSimpleName() + "->" + entry.getValue().getMethod().getName());
                 }
                 out.println("</div>");
-    
                 out.println("</body>");
                 out.println("</html>");
+
             }
             catch (URLException e){
                 out.println("<!DOCTYPE html>");

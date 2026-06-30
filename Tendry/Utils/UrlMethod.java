@@ -1,8 +1,8 @@
 package Tendry.Utils;
-
+import java.util.*;
 public class UrlMethod {
-    String url;
-    String Method;
+    private String url;
+    private String Method;
     public String getUrl() {
         return url;
     }
@@ -14,5 +14,24 @@ public class UrlMethod {
     }
     public void setMethod(String method) {
         Method = method;
+    }
+
+    @Override 
+    public boolean equals(Object other) {
+        if(other == null || !other.getClass().equals(UrlMethod.class)){
+            return false;
+        }
+        UrlMethod casted = (UrlMethod) other;
+        return getUrl().equals(casted.getUrl()) && getMethod().equals(casted.getMethod());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUrl() , getMethod());
+    }
+
+    @Override
+    public String toString() {
+        return Method + ";" + url;
     }
 }
