@@ -129,8 +129,9 @@ public class Utils {
     return all;
 }
 
-    // public  Object invokeFunction(Mapping map) throws Exception{
-    //     Object ret = map.getController().
-    // } 
+    public static Object invokeFunction(Mapping map) throws Exception{
+        Object ret = map.getController().getConstructor().newInstance();
+        return map.getMethod().invoke(ret);
+    } 
 
 }

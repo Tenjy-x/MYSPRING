@@ -15,5 +15,10 @@ public class Mapping {
     public void setMethod(Method method) {
         Method = method;
     }
+
+    @Override
+    public String toString() {
+        return getMethod() + " : " + getController(); 
+    }
     
 }

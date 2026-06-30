@@ -56,10 +56,22 @@ public class FrontControllerServlet extends HttpServlet{
                 for(Map.Entry<UrlMethod , Mapping> entry : m2.entrySet() ) {
                     out.println("method :" + entry.getKey().getMethod()+ " " + entry.getKey().getUrl()+ " : " + entry.getValue().getController().getSimpleName() + "->" + entry.getValue().getMethod().getName());
                 }
+                out.println("<br>");
+                out.println("<h2>Invocation</h2>");
+
+                UrlMethod urlMethod  = new UrlMethod();
+                urlMethod.setUrl(URL);
+                urlMethod.setMethod(req.getMethod());
+                Mapping map = m2.get(urlMethod);
+                try {
+                    Object o = Utils.invokeFunction(map);
+                    out.print(o);
+                }catch(Exception e) {
+                    System.out.println(e.getMessage());
+                }
                 out.println("</div>");
                 out.println("</body>");
                 out.println("</html>");
-
             }
             catch (URLException e){
                 out.println("<!DOCTYPE html>");
