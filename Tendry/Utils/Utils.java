@@ -80,23 +80,8 @@ public class Utils {
         return ListClasses;
     }
 
-    // public static  Map<String , Mapping> getAllFunctions(Class clazz) {
-    //     Map<String , Mapping> ret = new HashMap<>();
-    //     Method[] m = clazz.getDeclaredMethods();
-    //     for(Method function : m) {
-    //         UrlMapping ann = function.getAnnotation(UrlMapping.class);
-    //         if(ann!=null) {
-    //             Mapping map = new Mapping();
-    //             map.setController(clazz.getSimpleName());
-    //             map.setMethod(function.getName());
-    //             ret.put(ann.path() , map);
-    //         }
-    //     }
-    //     return ret ;
-    // }
 
-
-    public static Map<UrlMethod, Mapping> UrlMapping(String URL , List<Class<?>> classes , Class<? extends UrlMapping> a) throws URLException {
+    public static void UrlMapping(String URL , List<Class<?>> classes , Class<? extends UrlMapping> a ,  Map<UrlMethod, Mapping> MAP) throws URLException {
     Map<UrlMethod, Mapping> matched = new HashMap<>();
     Map<UrlMethod , Mapping> all = new HashMap<>();
     for(Class<?> clazz : classes) {
@@ -112,12 +97,40 @@ public class Utils {
                 map.setController(clazz);
                 all.put(urlMethod , map);
                 if((urlMethod.getUrl()).equals(URL)) {
-                    if(!matched.containsKey(urlMethod)) {
-                        matched.put(urlMethod , map);
-
-                    }else {
+                    if(matched.containsKey(urlMethod)) {
                         throw new URLException("Plusieurs fonctions ont cette URL");
                     }
+                    matched.put(urlMethod , map);
+                }
+            }
+        }
+    }
+    if (!matched.isEmpty()) {
+        MAP.putAll(matched);;
+    }
+    MAP.putAll(all);
+}
+
+public static Map<UrlMethod, Mapping> UrlMapping1(String URL , List<Class<?>> classes , Class<? extends UrlMapping> a) throws URLException {
+    Map<UrlMethod, Mapping> matched = new HashMap<>();
+    Map<UrlMethod , Mapping> all = new HashMap<>();
+    for(Class<?> clazz : classes) {
+        Method[] methods = clazz.getDeclaredMethods();
+        for(Method function : methods) {
+            UrlMapping ann = function.getAnnotation(UrlMapping.class);
+            if(ann != null){
+                UrlMethod urlMethod = new UrlMethod();
+                urlMethod.setUrl(ann.path());
+                urlMethod.setMethod(ann.method());
+                Mapping map = new Mapping();
+                map.setMethod(function);
+                map.setController(clazz);
+                all.put(urlMethod , map);
+                if((urlMethod.getUrl()).equals(URL)) {
+                    if(matched.containsKey(urlMethod)) {
+                        throw new URLException("Plusieurs fonctions ont cette URL");
+                    }
+                    matched.put(urlMethod , map);
                 }
             }
         }

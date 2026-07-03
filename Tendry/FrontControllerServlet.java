@@ -12,20 +12,20 @@ import Tendry.Utils.*;
 import Tendry.Exception.*;
 
 public class FrontControllerServlet extends HttpServlet{
-    List<Class<?>> Controller;
-    Map<String , Mapping> mps;
-    public void init() throws ServletException {
-        String packageName = this.getInitParameter("PackageName");
-        try {
-            List<Class<?>> classes = Utils.chargerClasses(packageName);
-            Controller = Utils.getAnnotationClasses(classes ,AnnotationController.class);
+    // List<Class<?>> Controller;
+    // Map<String , Mapping> mps;
+    // public void init() throws ServletException {
+    //     String packageName = this.getInitParameter("PackageName");
+    //     try {
+    //         List<Class<?>> classes = Utils.chargerClasses(packageName);
+    //         Controller = Utils.getAnnotationClasses(classes ,AnnotationController.class);
             
-        }catch(Exception e){
-            System.err.println("Erreur lors du chargement : " + e.getMessage());
-            e.printStackTrace();
-        } 
+    //     }catch(Exception e){
+    //         System.err.println("Erreur lors du chargement : " + e.getMessage());
+    //         e.printStackTrace();
+    //     } 
 
-    }
+    // }
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException , IOException {
         processRequest(req, res);
     }
@@ -34,11 +34,13 @@ public class FrontControllerServlet extends HttpServlet{
         processRequest(req, res);
     }
     public void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException , IOException  {
+        List<Class<?>> Controller = (List<Class<?>>) this.getServletContext().getAttribute("Controller");
         String URL = req.getRequestURI();
         URL = req.getPathInfo();
         PrintWriter out = res.getWriter();      
             try  {
-                Map<UrlMethod , Mapping> m2 = Utils.UrlMapping(URL  , Controller , UrlMapping.class);
+                Map<UrlMethod , Mapping> m2 = new HashMap<>();
+                Utils.UrlMapping(URL  , Controller , UrlMapping.class , m2);
                 out.println("<!DOCTYPE html>");
                 out.println("<html>");
                 out.println("<head>");
