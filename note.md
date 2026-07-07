@@ -58,6 +58,36 @@ UrlMapping
 Rehefa demarrer lay application dia Efa misy method anatinleh listener efa excecute
 Class Apart ny Listener
 
+--------------------------------------------------------------
+
+Sprint 5
+
+methode d'action retourne String
+parametre : Model
+
+creation methode
+    setAttribute(Map)
+
+String Object>
+miantso map.put
+
+manampy paramatre
+    - Prefixe
+    - suffixe
+invoken methode de recuperena ny valeur de retour 
+
+----------------------------------------------------------
+Model And view
+    attribut 
+        map
+        Url
+    alaina leh url de concatenena amin suffixe sy prefixe anaty param
+    dispatcherforward
+
+--------------------------------------------------------------
+
+
+
 
 
 

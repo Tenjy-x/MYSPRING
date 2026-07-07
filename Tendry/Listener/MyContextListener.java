@@ -47,5 +47,4 @@ public class MyContextListener implements ServletContextListener {
             throw new RuntimeException(e);
         }
     }
-
 }
