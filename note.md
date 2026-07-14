@@ -77,7 +77,6 @@ manampy paramatre
 invoken methode de recuperena ny valeur de retour 
 
 ----------------------------------------------------------
-Model And view
     attribut 
         map
         Url
@@ -85,9 +84,3 @@ Model And view
     dispatcherforward
 
 --------------------------------------------------------------
-
-
-
-
-
-
