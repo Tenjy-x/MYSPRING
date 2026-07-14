@@ -20,7 +20,7 @@ public class ModelAndView {
         this.Url = Url;
     }
 
-    public void setAttribute(String Url , String Object) {
+    public void setAttribute(String Url , Object Object) {
         getObject().put(Url, Object);
     }
 }
