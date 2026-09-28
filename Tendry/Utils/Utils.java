@@ -13,6 +13,10 @@ import java.util.jar.JarFile;
 import Tendry.Annotation.*;
 import Tendry.Exception.*;
 import Tendry.Utils.*;
+import Tendry.Utils.JsonResources;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class Utils {
  public static List<Class<?>> chargerClasses(String nomPackage) throws IOException, ClassNotFoundException {
@@ -147,4 +151,8 @@ public static Map<UrlMethod, Mapping> UrlMapping1(String URL , List<Class<?>> cl
         return map.getMethod().invoke(ret);
     } 
 
+    public static String toJson(Object object) throws JsonProcessingException {
+        ObjectWriter ow = JsonResources.getObjectwriter();
+        return ow.writeValueAsString(object);
+    }
 }

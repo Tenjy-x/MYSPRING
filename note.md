@@ -84,3 +84,29 @@ invoken methode de recuperena ny valeur de retour
     dispatcherforward
 
 --------------------------------------------------------------
+Sprint 5bis
+- Declarer listenerspring ( efa misy ao : demarrage instance container)
+    -> web.xml no ideclarena azy  
+
+ <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/applicationContext.xml</param-value>
+</context-param>
+
+<!-- Déclaration du listener qui démarre le conteneur Spring -->
+<listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+- Comment avoir un instance d'un container  spring ?
+
+Sprint 6
+Mamerina Json 
+Refa mahita zay annotation lay framework dia tsy manao request Dispatcher fa mamerina Json 
+
+- Manampy annotation ray zay apetaka aminleh method
+zay tsy mande amin vue fa json no miverina
+@webapi
+Rehefa tsy misy lay annotation vaovao dia mande dispatcher
+- 
+- Ref string deh tsy mila mamadika Json
+   Fa ref hafa dia manao toJson 
