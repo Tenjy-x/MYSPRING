@@ -7,27 +7,30 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
+
 import Tendry.Annotation.AnnotationController;
 import Tendry.Annotation.UrlMapping;
+import Tendry.Annotation.Webapi;
 import Tendry.Utils.*;
 import Tendry.Exception.*;
 import Tendry.Web.*;
 import jakarta.servlet.*;
 public class FrontControllerServlet extends HttpServlet{
-    // List<Class<?>> Controller;
-    // Map<String , Mapping> mps;
-    // public void init() throws ServletException {
-    //     String packageName = this.getInitParameter("PackageName");
-    //     try {
-    //         List<Class<?>> classes = Utils.chargerClasses(packageName);
-    //         Controller = Utils.getAnnotationClasses(classes ,AnnotationController.class);
+    List<Class<?>> Controller;
+    Map<String , Mapping> mps;
+    public void init() throws ServletException {
+        String packageName = this.getInitParameter("PackageName");
+        try {
+            List<Class<?>> classes = Utils.chargerClasses(packageName);
+            Controller = Utils.getAnnotationClasses(classes ,AnnotationController.class);
             
-    //     }catch(Exception e){
-    //         System.err.println("Erreur lors du chargement : " + e.getMessage());
-    //         e.printStackTrace();
-    //     } 
+        }catch(Exception e){
+            System.err.println("Erreur lors du chargement : " + e.getMessage());
+            e.printStackTrace();
+        } 
 
-    // }
+    }
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException , IOException {
         processRequest(req, res);
     }
@@ -92,8 +95,23 @@ public class FrontControllerServlet extends HttpServlet{
                             return;
                         }
                     }
+                    try(PrintWriter out = res.getWriter()) {
+                       if(map.getMethod().isAnnotationPresent(Webapi.class)) {
+                            res.setHeader("Content-Type", "application/json");
+                            // res.setContentType("application/json");
+                            String json = Utils.toJson(o);
+                            // out.println("OHHH");
+                            out.print(json);
+                            return;
+                       }
+                       out.println(o);
+                    }catch(Exception e) {
+                        System.out.println(e.getMessage());
+                        throw new ServletException(e);
+                    }
                 }catch(Exception e) {
-                    System.out.println(e.getMessage());
+                    PrintWriter out = res.getWriter();
+                    out.println(e.getMessage());
                     throw new ServletException(e);
                 }
                 // out.println("</div>");
