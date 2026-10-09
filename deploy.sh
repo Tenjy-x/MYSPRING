@@ -38,9 +38,9 @@ mkdir -p $DOSSIER_CLASSES
 
 # Compilation
 if [ -n "$CLASSPATH" ]; then
-    javac -cp "$CLASSPATH" -d "$DOSSIER_CLASSES" $JAVA_FILES
+    javac -parameters -cp "$CLASSPATH" -d "$DOSSIER_CLASSES" $JAVA_FILES
 else
-    javac -d "$DOSSIER_CLASSES" $JAVA_FILES
+    javac -parameters -d "$DOSSIER_CLASSES" $JAVA_FILES
 fi
 
 # Vérifier le succès de la compilation

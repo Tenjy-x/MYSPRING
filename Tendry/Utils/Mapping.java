@@ -20,5 +20,4 @@ public class Mapping {
     public String toString() {
         return getMethod() + " : " + getController(); 
     }
-    
 }

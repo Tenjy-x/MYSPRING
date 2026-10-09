@@ -3,6 +3,7 @@ package Tendry.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.net.*;
 import java.text.Annotation;
@@ -14,6 +15,8 @@ import Tendry.Annotation.*;
 import Tendry.Exception.*;
 import Tendry.Utils.*;
 import Tendry.Utils.JsonResources;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -146,13 +149,45 @@ public static Map<UrlMethod, Mapping> UrlMapping1(String URL , List<Class<?>> cl
     return all;
 }
 
-    public static Object invokeFunction(Mapping map) throws Exception{
-        Object ret = map.getController().getConstructor().newInstance();
-        return map.getMethod().invoke(ret);
-    } 
 
-    public static String toJson(Object object) throws JsonProcessingException {
-        ObjectWriter ow = JsonResources.getObjectwriter();
-        return ow.writeValueAsString(object);
+
+
+public static String toJson(Object object) throws JsonProcessingException {
+    ObjectWriter ow = JsonResources.getObjectwriter();
+    return ow.writeValueAsString(object);
     }
+
+    public static void Parameters(Parameter[] parameters , HttpServletRequest req , Object[] objects) {
+        Map<String , Object> temp = new HashMap<String,Object>();
+        Enumeration<String> enumeration = req.getParameterNames();
+        while(enumeration.hasMoreElements()) {
+            String pName = enumeration.nextElement();
+            Object value = req.getParameterValues(pName);
+            temp.put(pName, value);
+        }
+        for(Parameter p : parameters) {
+            if(p.isNamePresent() == false){
+                throw new IllegalStateException(
+                    "Nom de parametre introuvable pour '" + p.getDeclaringExecutable().getName()
+);
+            }
+        }
+        int i = 0;
+        for(Parameter p : parameters) {
+            objects[i] = TypeConverter.convert(temp.get(p.getName()), p.getType(), p.getParameterizedType());
+            i++;
+        }   
+    }
+
+    public static Object invokeFunction(Mapping map , HttpServletRequest req) throws Exception{
+        if(map == null || map.getController() == null || map.getMethod() == null){
+            throw new URLException("Aucune methode ne correspond a l'URL demandee");
+        }
+        Object ret = map.getController().getConstructor().newInstance();
+        Method fonction = map.getMethod();
+        Parameter[] parameters = fonction.getParameters();
+        Object[] objects = new Object[parameters.length];
+        Utils.Parameters(parameters , req , objects);
+        return fonction.invoke(ret , objects);
+    } 
 }
