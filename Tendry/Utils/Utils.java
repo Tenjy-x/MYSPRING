@@ -2,6 +2,7 @@ package Tendry.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -157,7 +158,105 @@ public static String toJson(Object object) throws JsonProcessingException {
     return ow.writeValueAsString(object);
     }
 
-    public static void Parameters(Parameter[] parameters , HttpServletRequest req , Object[] objects) {
+    public static void bindObjectFromRequest(Object object, HttpServletRequest req) throws Exception {
+        if (object == null || req == null) {
+            return;
+        }
+
+        Enumeration<String> parameterNames = req.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String paramName = parameterNames.nextElement();
+            if (paramName == null || paramName.trim().isEmpty()) {
+                continue;
+            }
+
+            String[] path = paramName.split("\\.");
+            Object currentObject = object;
+
+            for (int i = 0; i < path.length; i++) {
+                String propertyName = path[i];
+                String setterName = "set" + capitalize(propertyName);
+
+                if (i == path.length - 1) {
+                    Method setter = findSetterMethod(currentObject.getClass(), propertyName);
+                    if (setter == null) {
+                        continue;
+                    }
+                    Object value = TypeConverter.convert(req.getParameterValues(paramName), setter.getParameterTypes()[0], setter.getGenericParameterTypes()[0]);
+                    setter.invoke(currentObject, value);
+                    break;
+                }
+
+                Object nestedObject = getPropertyValue(currentObject, propertyName);
+                if (nestedObject == null) {
+                    Method setter = findSetterMethod(currentObject.getClass(), propertyName);
+                    if (setter == null) {
+                        break;
+                    }
+                    Class<?> nestedType = setter.getParameterTypes()[0];
+                    if (nestedType.isPrimitive() || nestedType.getName().startsWith("java.")) {
+                        break;
+                    }
+                    nestedObject = nestedType.getDeclaredConstructor().newInstance();
+                    setter.invoke(currentObject, nestedObject);
+                }
+                currentObject = nestedObject;
+            }
+        }
+    }
+
+    private static Method findSetterMethod(Class<?> clazz, String propertyName) {
+        String setterName = "set" + capitalize(propertyName);
+
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                return method;
+            }
+        }
+
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getName().equalsIgnoreCase(propertyName)) {
+                String fieldSetterName = "set" + capitalize(field.getName());
+                for (Method method : clazz.getDeclaredMethods()) {
+                    if (method.getName().equals(fieldSetterName) && method.getParameterCount() == 1) {
+                        return method;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static Object getPropertyValue(Object object, String propertyName) throws Exception {
+        String getterName = "get" + capitalize(propertyName);
+        String booleanGetterName = "is" + capitalize(propertyName);
+
+        for (Method method : object.getClass().getDeclaredMethods()) {
+            if ((method.getName().equals(getterName) || method.getName().equals(booleanGetterName)) && method.getParameterCount() == 0) {
+                method.setAccessible(true);
+                return method.invoke(object);
+            }
+        }
+
+        for (Field field : object.getClass().getDeclaredFields()) {
+            if (field.getName().equalsIgnoreCase(propertyName)) {
+                field.setAccessible(true);
+                return field.get(object);
+            }
+        }
+
+        return null;
+    }
+
+    private static String capitalize(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        return value.substring(0, 1).toUpperCase() + value.substring(1);
+    }
+
+    public static void Parameters(Parameter[] parameters , HttpServletRequest req , Object[] objects) throws Exception {
         Map<String , Object> temp = new HashMap<String,Object>();
         Enumeration<String> enumeration = req.getParameterNames();
         while(enumeration.hasMoreElements()) {
@@ -174,7 +273,19 @@ public static String toJson(Object object) throws JsonProcessingException {
         }
         int i = 0;
         for(Parameter p : parameters) {
-            objects[i] = TypeConverter.convert(temp.get(p.getName()), p.getType(), p.getParameterizedType());
+            Class<?> paramType = p.getType();
+            if (paramType.isPrimitive() || paramType.equals(String.class)
+                    || Number.class.isAssignableFrom(paramType)
+                    || paramType.equals(Boolean.class)
+                    || paramType.equals(Character.class)
+                    || paramType.isArray()
+                    || List.class.isAssignableFrom(paramType)) {
+                objects[i] = TypeConverter.convert(temp.get(p.getName()), paramType, p.getParameterizedType());
+            } else {
+                Object object = paramType.getDeclaredConstructor().newInstance();
+                bindObjectFromRequest(object, req);
+                objects[i] = object;
+            }
             i++;
         }   
     }
