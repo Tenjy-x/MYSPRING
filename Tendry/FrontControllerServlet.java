@@ -42,9 +42,14 @@ public class FrontControllerServlet extends HttpServlet{
         List<Class<?>> Controller = (List<Class<?>>) this.getServletContext().getAttribute("Controller");
         String suffixe = getServletContext().getInitParameter("Suffixe");
         String prefixe = getServletContext().getInitParameter("Prefixe");
-        String URL = req.getRequestURI();
-        URL = req.getPathInfo();
-        if(URL != null && URL.startsWith("/WEB-INF")){
+        String URL = req.getPathInfo();
+        if(URL == null || URL.isEmpty()){
+            URL = req.getServletPath();
+        }
+        if(URL == null || URL.isEmpty()){
+            URL = "/";
+        }
+        if(URL.startsWith("/WEB-INF")){
             req.getServletContext().getNamedDispatcher("jsp").forward(req, res);
             return;
         }
@@ -76,8 +81,12 @@ public class FrontControllerServlet extends HttpServlet{
                 urlMethod.setUrl(URL);
                 urlMethod.setMethod(req.getMethod());
                 Mapping map = m2.get(urlMethod);
+                if(map == null){
+                    res.sendError(HttpServletResponse.SC_NOT_FOUND , "Aucune route pour " + URL + " (" + req.getMethod() + ")");
+                    return;
+                }
                 try {
-                    Object o = Utils.invokeFunction(map);
+                    Object o = Utils.invokeFunction(map, req);
                     if(o instanceof ModelAndView) {
                         System.out.println("Je suis dans le ModelAndView");
                         ModelAndView modelAndView = (ModelAndView) o;
@@ -98,9 +107,7 @@ public class FrontControllerServlet extends HttpServlet{
                     try(PrintWriter out = res.getWriter()) {
                        if(map.getMethod().isAnnotationPresent(Webapi.class)) {
                             res.setHeader("Content-Type", "application/json");
-                            // res.setContentType("application/json");
                             String json = Utils.toJson(o);
-                            // out.println("OHHH");
                             out.print(json);
                             return;
                        }
@@ -109,6 +116,7 @@ public class FrontControllerServlet extends HttpServlet{
                         System.out.println(e.getMessage());
                         throw new ServletException(e);
                     }
+                    
                 }catch(Exception e) {
                     PrintWriter out = res.getWriter();
                     out.println(e.getMessage());

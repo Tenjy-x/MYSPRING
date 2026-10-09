@@ -110,3 +110,16 @@ Rehefa tsy misy lay annotation vaovao dia mande dispatcher
 - 
 - Ref string deh tsy mila mamadika Json
    Fa ref hafa dia manao toJson 
+
+-----------------------------------------------------------------------------------
+Sprint 7
+Rehefa mclique btn dia makao amin FrontServlet 
+Io mamantatra hoe save na hafa 
+Rehefa mverifier methode dia apina hoe misy parametre ve lay methode 
+1ere etape
+    Tsy objet 
+    save(String nom , int age)
+    utiliser getParameterNames
+
+Sprint 7 bis
+

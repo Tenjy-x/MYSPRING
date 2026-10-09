@@ -22,7 +22,7 @@ public class UrlMethod {
             return false;
         }
         UrlMethod casted = (UrlMethod) other;
-        return getUrl().equals(casted.getUrl()) && getMethod().equals(casted.getMethod());
+        return Objects.equals(getUrl(), casted.getUrl()) && Objects.equals(getMethod(), casted.getMethod());
     }
 
     @Override
