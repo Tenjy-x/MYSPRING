@@ -123,3 +123,24 @@ Rehefa mverifier methode dia apina hoe misy parametre ve lay methode
 
 Sprint 7 bis
 
+-----------------------------------------------------------------------------------
+Upload
+Anaty formulaire possible misy input:file
+Mande any amin Action atsika (method Controller)
+-> Mila tonga anaty leh action ilay file 
+    - Creer class MapFile
+        - Filename
+        - Extension
+        - Byte[]
+        -> instancena aty amin Map 
+
+    - Misy type MapFile ve ?
+        si oui 
+            - Instancena
+        
+
+
+----------------------------------------------------------------------------------------
+Sprint 9
+Atao disponible anaty controller lay session Utilisateur
+

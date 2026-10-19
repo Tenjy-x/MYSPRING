@@ -5,6 +5,7 @@ import java.rmi.server.ServerCloneException;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
@@ -16,6 +17,7 @@ import Tendry.Utils.*;
 import Tendry.Exception.*;
 import Tendry.Web.*;
 import jakarta.servlet.*;
+@MultipartConfig
 public class FrontControllerServlet extends HttpServlet{
     List<Class<?>> Controller;
     Map<String , Mapping> mps;
