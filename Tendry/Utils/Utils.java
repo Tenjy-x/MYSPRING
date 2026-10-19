@@ -2,6 +2,7 @@ package Tendry.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -18,6 +19,7 @@ import Tendry.Utils.*;
 import Tendry.Utils.JsonResources;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -182,6 +184,9 @@ public static String toJson(Object object) throws JsonProcessingException {
                     if (setter == null) {
                         continue;
                     }
+                    if (MapFile.class.isAssignableFrom(setter.getParameterTypes()[0])) {
+                        break;
+                    }
                     Object value = TypeConverter.convert(req.getParameterValues(paramName), setter.getParameterTypes()[0], setter.getGenericParameterTypes()[0]);
                     setter.invoke(currentObject, value);
                     break;
@@ -203,6 +208,57 @@ public static String toJson(Object object) throws JsonProcessingException {
                 currentObject = nestedObject;
             }
         }
+
+        String contentType = req.getContentType();
+        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("multipart/form-data")) {
+            return;
+        }
+
+        for (Field field : object.getClass().getDeclaredFields()) {
+            Method setter = findSetterMethod(object.getClass(), field.getName());
+            if (setter == null || !MapFile.class.isAssignableFrom(setter.getParameterTypes()[0])) {
+                continue;
+            }
+
+            Part part = req.getPart(field.getName());
+            if (part == null) {
+                continue;
+            }
+            String submittedFileName = part.getSubmittedFileName();
+            if (submittedFileName == null || submittedFileName.trim().isEmpty()) {
+                continue;
+            }
+
+            MapFile mapFile;
+            try (InputStream input = part.getInputStream()) {
+                mapFile = MapFile.fromInputStream(submittedFileName, input);
+            }
+            mapFile.saveTo(getUploadDirectory(req));
+            setter.invoke(object, mapFile);
+        }
+    }
+
+    private static String getUploadDirectory(HttpServletRequest req) throws IOException {
+        InputStream config = req.getServletContext().getResourceAsStream("/application.properties");
+        if (config == null) {
+            config = req.getServletContext().getResourceAsStream("/WEB-INF/classes/application.properties");
+        }
+        if (config == null) {
+            config = Thread.currentThread().getContextClassLoader().getResourceAsStream("application.properties");
+        }
+        if (config == null) {
+            throw new IllegalStateException("Le fichier application.properties est introuvable");
+        }
+
+        Properties properties = new Properties();
+        try (InputStream input = config) {
+            properties.load(input);
+        }
+        String uploadDirectory = properties.getProperty("upload.dir");
+        if (uploadDirectory == null || uploadDirectory.trim().isEmpty()) {
+            throw new IllegalStateException("La propriété upload.dir est absente ou vide dans application.properties");
+        }
+        return uploadDirectory.trim();
     }
 
     private static Method findSetterMethod(Class<?> clazz, String propertyName) {
