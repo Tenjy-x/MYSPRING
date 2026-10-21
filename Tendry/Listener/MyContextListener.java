@@ -12,6 +12,7 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebListener;
+import Tendry.Utils.*;
 
 @WebListener
 public class MyContextListener implements ServletContextListener {
@@ -37,6 +38,9 @@ public class MyContextListener implements ServletContextListener {
                 Map<UrlMethod, Mapping> urlMapping = new HashMap<>();
                 List<Class<?>> listes = Utils.getAnnotationClasses(classes, AnnotationController.class);
                 context.setAttribute("Controller", listes);
+                Map<String , MySession> sessions = new HashMap<>();
+                context.setAttribute("Session", sessions);
+                
             } catch (Exception e) {
                 throw new ServletException(e);
             }
