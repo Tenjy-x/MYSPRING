@@ -17,8 +17,10 @@ import Tendry.Annotation.*;
 import Tendry.Exception.*;
 import Tendry.Utils.*;
 import Tendry.Utils.JsonResources;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -346,15 +348,62 @@ public static String toJson(Object object) throws JsonProcessingException {
         }   
     }
 
-    public static Object invokeFunction(Mapping map , HttpServletRequest req) throws Exception{
+    public static int findIndex(Parameter[] parameters , Class<?> clazz) throws Exception{
+        int index = 0;
+        for(Parameter p  : parameters) {
+            if(p.getType().equals(clazz)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
+
+    public static void fillAttributes(HttpSession Hs , MySession mysession) throws Exception {
+        Enumeration<String> stock = Hs.getAttributeNames();
+        while (stock.hasMoreElements()) {
+            String i = stock.nextElement();
+            mysession.set(i , Hs.getAttribute(i));
+        }
+    }
+
+    public static void fillAttributesContraire(HttpSession Hs , MySession mySession) throws Exception {
+        for(Map.Entry<String , Object> entry : mySession.getAttributes().entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            Hs.setAttribute(key, value);
+        }
+    }
+
+    public static Object invokeFunction(Mapping map , HttpServletRequest req , ServletContext sc) throws Exception{
         if(map == null || map.getController() == null || map.getMethod() == null){
             throw new URLException("Aucune methode ne correspond a l'URL demandee");
         }
         Object ret = map.getController().getConstructor().newInstance();
         Method fonction = map.getMethod();
         Parameter[] parameters = fonction.getParameters();
+        int indexSession = findIndex(parameters, MySession.class);
         Object[] objects = new Object[parameters.length];
         Utils.Parameters(parameters , req , objects);
-        return fonction.invoke(ret , objects);
-    } 
+        MySession mySession = null;
+        HttpSession Hs = null;
+        if(indexSession != -1) {
+            Map<String , MySession> ms = (Map<String , MySession>)sc.getAttribute("Session");
+             Hs = req.getSession(true);
+            String idSession = Hs.getId();
+            mySession = ms.get(idSession);
+            if(mySession == null) {
+                mySession = new MySession();
+                fillAttributes(Hs, mySession);
+                ms.put(idSession, mySession);
+                fillAttributesContraire(Hs , mySession );
+            }
+            objects[indexSession] = mySession;
+        } 
+        Object temp = fonction.invoke(ret , objects);
+        if(mySession != null) {
+            fillAttributesContraire(Hs , mySession);
+        }
+        return temp;
+    }
 }

@@ -19,20 +19,20 @@ import Tendry.Web.*;
 import jakarta.servlet.*;
 @MultipartConfig
 public class FrontControllerServlet extends HttpServlet{
-    List<Class<?>> Controller;
-    Map<String , Mapping> mps;
-    public void init() throws ServletException {
-        String packageName = this.getInitParameter("PackageName");
-        try {
-            List<Class<?>> classes = Utils.chargerClasses(packageName);
-            Controller = Utils.getAnnotationClasses(classes ,AnnotationController.class);
+    // List<Class<?>> Controller;
+    // Map<String , Mapping> mps;
+    // public void init() throws ServletException {
+    //     String packageName = this.getInitParameter("PackageName");
+    //     try {
+    //         List<Class<?>> classes = Utils.chargerClasses(packageName);
+    //         Controller = Utils.getAnnotationClasses(classes ,AnnotationController.class);
             
-        }catch(Exception e){
-            System.err.println("Erreur lors du chargement : " + e.getMessage());
-            e.printStackTrace();
-        } 
+    //     }catch(Exception e){
+    //         System.err.println("Erreur lors du chargement : " + e.getMessage());
+    //         e.printStackTrace();
+    //     } 
 
-    }
+    // }
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException , IOException {
         processRequest(req, res);
     }
@@ -88,7 +88,7 @@ public class FrontControllerServlet extends HttpServlet{
                     return;
                 }
                 try {
-                    Object o = Utils.invokeFunction(map, req);
+                    Object o = Utils.invokeFunction(map, req , this.getServletContext());
                     if(o instanceof ModelAndView) {
                         System.out.println("Je suis dans le ModelAndView");
                         ModelAndView modelAndView = (ModelAndView) o;

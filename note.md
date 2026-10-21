@@ -143,4 +143,11 @@ Mande any amin Action atsika (method Controller)
 ----------------------------------------------------------------------------------------
 Sprint 9
 Atao disponible anaty controller lay session Utilisateur
+Creer Class Mysession 
+    - Map<String , Object> 
+    - Method utilitaire pour recuperer ou ajouter variable
+Refa mahita an iny ny framework atsika dia injectena
+
+Rehefa vita ny invoke dia atao mis a jour ny session 
+
 
