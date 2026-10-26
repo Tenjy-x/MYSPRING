@@ -150,4 +150,17 @@ Refa mahita an iny ny framework atsika dia injectena
 
 Rehefa vita ny invoke dia atao mis a jour ny session 
 
-
+----------------------------------------------------------------------------------------
+Sprint10
+Tsy maintsy Authentifie lay olona 
+- Tsy maintsy manana role specifique
+-> 
+    - Manisy Annotation
+    - Verifiena anaty framework hoe authentifie sa tsy 
+    - isaky mahita annotation , Verifiena hoe miexiste ve ny nom ana session
+    -  Ahona no alalana hoe inona ny anaran variable fa authentifie ny nom an utilisateur sa tsia ?
+        - Par convention 
+        - Par configuration
+            - web xml : init param > ty ny anaran variable verifiena
+            - alaina ilay param (in 1 mandeh ihany ) -> apetraka anaty servlet context
+- 
