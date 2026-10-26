@@ -13,6 +13,8 @@ import java.text.Annotation;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.naming.AuthenticationException;
+
 import Tendry.Annotation.*;
 import Tendry.Exception.*;
 import Tendry.Utils.*;
@@ -375,21 +377,42 @@ public static String toJson(Object object) throws JsonProcessingException {
         }
     }
 
+    public static  void checkAuth(HttpServletRequest req , ServletContext context) throws Exception {
+        Map<String , MySession> Ms = (Map<String , MySession>) context.getAttribute("Session");
+        HttpSession session = req.getSession(false);
+        MySession mySession = Ms.get(session.getId());
+        if(mySession == null) {
+            throw new Exception("Vous avez pas l'autorisation d'acceder a cette page");
+        }
+
+        String var = (String) context.getInitParameter("Auth");
+        if(var == null) {
+            throw new Exception("Pas de variable dans web.xml");
+        }
+
+        if(mySession.get(var) == null) {
+            throw new Exception("Vous avez pas le droit d'entrer dans cette page");
+        }
+    }
+
     public static Object invokeFunction(Mapping map , HttpServletRequest req , ServletContext sc) throws Exception{
         if(map == null || map.getController() == null || map.getMethod() == null){
             throw new URLException("Aucune methode ne correspond a l'URL demandee");
         }
         Object ret = map.getController().getConstructor().newInstance();
         Method fonction = map.getMethod();
+        HttpSession Hs = null;
+        Hs = req.getSession(true);
+        if(fonction.isAnnotationPresent(Auth.class)) {
+            checkAuth(req, sc);
+        }
         Parameter[] parameters = fonction.getParameters();
         int indexSession = findIndex(parameters, MySession.class);
         Object[] objects = new Object[parameters.length];
         Utils.Parameters(parameters , req , objects);
         MySession mySession = null;
-        HttpSession Hs = null;
         if(indexSession != -1) {
             Map<String , MySession> ms = (Map<String , MySession>)sc.getAttribute("Session");
-             Hs = req.getSession(true);
             String idSession = Hs.getId();
             mySession = ms.get(idSession);
             if(mySession == null) {
