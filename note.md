@@ -163,4 +163,11 @@ Tsy maintsy Authentifie lay olona
         - Par configuration
             - web xml : init param > ty ny anaran variable verifiena
             - alaina ilay param (in 1 mandeh ihany ) -> apetraka anaty servlet context
-- 
+
+--------------------------------------------------------------------------------------------
+Sprint10bis
+- Manampy variable ametrahan Dev ny role any 
+- Ref mahit anleh annotation 
+    - verifiena hoe misy anlay variable ve anaty xml . Zay nametrahana ny role
+    - si oui 
+        - Alaina ilay variable , Verifiena hoe misy ve anaty session 
