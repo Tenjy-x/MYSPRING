@@ -377,7 +377,7 @@ public static String toJson(Object object) throws JsonProcessingException {
         }
     }
 
-    public static  void checkAuth(HttpServletRequest req , ServletContext context) throws Exception {
+    public static  void checkAuth(HttpServletRequest req , ServletContext context , Method function) throws Exception {
         Map<String , MySession> Ms = (Map<String , MySession>) context.getAttribute("Session");
         HttpSession session = req.getSession(false);
         MySession mySession = Ms.get(session.getId());
@@ -393,6 +393,26 @@ public static String toJson(Object object) throws JsonProcessingException {
         if(mySession.get(var) == null) {
             throw new Exception("Vous avez pas le droit d'entrer dans cette page");
         }
+        checkRole(context, mySession ,function);
+    }
+
+    public static void checkRole(ServletContext sc , MySession mySession , Method Function) throws Exception {
+        String SessionName = (String) sc.getInitParameter("Role");
+        Auth a = Function.getAnnotation(Auth.class);
+        for (int i = 0 ; i < a.role().length ; i++) {
+            String role = a.role()[i];
+            if(SessionName == null) {
+                 throw new Exception("Pas de variable dans web.xml");
+            }
+            if(mySession.get(SessionName) == null) {
+                throw new Exception("Vous avez pas le droit d'entrer dans cette page!");
+            }
+            if(role.equals(mySession.get(SessionName))){
+                return;
+            }
+        }
+        throw new Exception("Vous avez pas le droit d'entrer dans cette page!!!");
+
     }
 
     public static Object invokeFunction(Mapping map , HttpServletRequest req , ServletContext sc) throws Exception{
@@ -404,7 +424,7 @@ public static String toJson(Object object) throws JsonProcessingException {
         HttpSession Hs = null;
         Hs = req.getSession(true);
         if(fonction.isAnnotationPresent(Auth.class)) {
-            checkAuth(req, sc);
+            checkAuth(req, sc , fonction);
         }
         Parameter[] parameters = fonction.getParameters();
         int indexSession = findIndex(parameters, MySession.class);
