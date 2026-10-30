@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.net.*;
 import java.text.Annotation;
 
@@ -415,11 +416,25 @@ public static String toJson(Object object) throws JsonProcessingException {
 
     }
 
+    private static final Map<Class<?>, Object> controllerInstances = new ConcurrentHashMap<>();
+
+    public static Object getControllerInstance(Class<?> clazz) throws Exception {
+        Object instance = controllerInstances.get(clazz);
+        if (instance == null) {
+            instance = clazz.getConstructor().newInstance();
+            Object existing = controllerInstances.putIfAbsent(clazz, instance);
+            if (existing != null) {
+                instance = existing;
+            }
+        }
+        return instance;
+    }
+
     public static Object invokeFunction(Mapping map , HttpServletRequest req , ServletContext sc) throws Exception{
         if(map == null || map.getController() == null || map.getMethod() == null){
             throw new URLException("Aucune methode ne correspond a l'URL demandee");
         }
-        Object ret = map.getController().getConstructor().newInstance();
+        Object ret = getControllerInstance(map.getController());
         Method fonction = map.getMethod();
         HttpSession Hs = null;
         Hs = req.getSession(true);
